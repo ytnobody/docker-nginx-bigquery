@@ -9,7 +9,7 @@ if [ -e /opt/conf/bigquery.rc ]; then
 fi
 
 if [ -d /opt/conf/nginx ]; then
-   ln -s /opt/conf/nginx /etc/nginx/conf.d
+   cp -v /opt/conf/nginx/*.conf /etc/nginx/conf.d/
 fi
 
 sed -i "s/__BIGQUERY_EMAIL__/$BIGQUERY_EMAIL/" /etc/td-agent/td-agent.conf
