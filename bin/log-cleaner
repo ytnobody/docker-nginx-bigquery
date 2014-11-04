@@ -1,0 +1,14 @@
+#!/bin/bash
+
+TARGET=$1
+INTERVAL=$2
+if [ $INTERVAL -lt 1 ]; then
+    INTERVAL = 300
+fi
+
+echo "running log-cleaner for $TARGET interval $INTERVAL"
+
+while [ 1 ] ; do
+    sleep $INTERVAL
+    cp /dev/null $TARGET
+done

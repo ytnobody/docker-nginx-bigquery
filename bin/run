@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ ! -e /opt/conf ]; then
+    git clone $CONF_REPO /opt/conf
+fi
+
+if [ -e /opt/conf/bigquery.rc ]; then
+    . /opt/conf/bigquery.rc
+fi
+
+if [ -d /opt/conf/nginx ]; then
+   ln -s /opt/conf/nginx /etc/nginx/conf.d
+fi
+
+sed -i "s/__BIGQUERY_EMAIL__/$BIGQUERY_EMAIL/" /etc/td-agent/td-agent.conf
+sed -i "s/__BIGQUERY_PROJECT__/$BIGQUERY_PROJECT/" /etc/td-agent/td-agent.conf
+sed -i "s/__BIGQUERY_DATASET__/$BIGQUERY_DATASET/" /etc/td-agent/td-agent.conf
+sed -i "s/__BIGQUERY_TABLE__/$BIGQUERY_TABLE/" /etc/td-agent/td-agent.conf
+
+touch /tmp/nginx.access.log
+
+service td-agent start
+service nginx start
+
+tail -F /var/log/nginx/access.log > /tmp/nginx.access.log &
+/usr/local/bin/log-cleaner /tmp/nginx.access.log 3600 &
+
+tail -n 500 -F /var/log/td-agent/td-agent.log /var/log/nginx/error.log 
