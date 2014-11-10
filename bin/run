@@ -16,13 +16,25 @@ sed -i "s/__BIGQUERY_EMAIL__/$BIGQUERY_EMAIL/" /etc/td-agent/td-agent.conf
 sed -i "s/__BIGQUERY_PROJECT__/$BIGQUERY_PROJECT/" /etc/td-agent/td-agent.conf
 sed -i "s/__BIGQUERY_DATASET__/$BIGQUERY_DATASET/" /etc/td-agent/td-agent.conf
 sed -i "s/__BIGQUERY_TABLE__/$BIGQUERY_TABLE/" /etc/td-agent/td-agent.conf
+sed -i "s/__IMKAYAC_USER__/$IMKAYAC_USER/" /etc/td-agent/td-agent.conf
+sed -i "28s/\/usr\/sbin\/td-agent /\/usr\/sbin\/td-agent -qq /" /etc/init.d/td-agent
+
+if [ $IMKAYAC_PASSWORD ]; then
+  sed -i "45s/^/  password $IMKAYAC_PASSWORD/" /etc/td-agent/td-agent.conf
+elif [ $IMKAYAC_KEY ]; then
+  sed -i "45s/^/  secret_key $IMKAYAC_KEY/" /etc/td-agent/td-agent.conf
+fi
 
 touch /tmp/nginx.access.log
+touch /tmp/td-agent.log
 
 service td-agent start
 service nginx start
 
 tail -F /var/log/nginx/access.log > /tmp/nginx.access.log &
+tail -F /var/log/td-agent/td-agent.log | grep '[error]' > /tmp/td-agent.log &
+
 /usr/local/bin/log-cleaner /tmp/nginx.access.log 3600 &
+/usr/local/bin/log-cleaner /tmp/td-agent.log 3600 &
 
 tail -n 500 -F /var/log/td-agent/td-agent.log /var/log/nginx/error.log 

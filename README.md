@@ -2,6 +2,8 @@
 
 Logs of nginx on Docker container that will be forwarded to Google BigQuery.
 
+Errors will be reported to your im.kayac account.
+
 ## Prepare
 
 ### Create a table on bigquery
@@ -47,6 +49,8 @@ And, example of bigquery.rc is following.
     export BIGQUERY_PROJECT=your-projectid-123
     export BIGQUERY_DATASET=your-dataset
     export BIGQUERY_TABLE=access_log
+    export IMKAYAC_USER=notify_target_account
+    export IMKAYAC_KEY=imkayac-secret
 
 Then, push these to remote repository.
 
